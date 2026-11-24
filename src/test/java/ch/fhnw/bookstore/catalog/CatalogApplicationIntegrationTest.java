@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integrationstest: startet die ganze Anwendung auf einem zufälligen Port
  * und ruft die REST-Schnittstelle über echtes HTTP auf.
- * Verwendet die H2-Datenbank mit den Daten aus data.sql.
+ * Verwendet eine PostgreSQL-Datenbank (Testcontainers) mit den Daten aus data.sql.
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@Import(TestcontainersConfiguration.class)
 class CatalogApplicationIntegrationTest {
 
     @Autowired

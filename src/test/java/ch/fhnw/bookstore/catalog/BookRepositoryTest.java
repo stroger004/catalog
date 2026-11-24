@@ -3,7 +3,9 @@ package ch.fhnw.bookstore.catalog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // keine H2, echte DB verwenden
+@Import(TestcontainersConfiguration.class) // PostgreSQL via Testcontainers
 @TestPropertySource(properties = "spring.sql.init.mode=never") // eigene Testdaten statt data.sql
 class BookRepositoryTest {
 
