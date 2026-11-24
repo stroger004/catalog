@@ -71,3 +71,4 @@ Wir testen auf drei Ebenen. Unten viele schnelle Tests, oben wenige, die das Gan
 - Zeichen wie `%` oder `_` im Suchbegriff werden als SQL-Platzhalter interpretiert.
 - Keine Sortierung nach Relevanz und keine Paginierung – kommt mit Story #57 „Suchergebnisse anzeigen“.
 - Keine Lasttests, da die Datenmenge im Projekt klein ist.
+![img.png](img.png)
