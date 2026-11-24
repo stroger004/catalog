@@ -9,12 +9,22 @@ pool:
 
 variables:
   imageName: sonjatroger/catalog
+  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
 
 steps:
+  # 0. Maven-Abhängigkeiten aus dem Cache holen (Bonus)
+  - task: Cache@2
+    displayName: 'Maven-Cache'
+    inputs:
+      key: 'maven | "$(Agent.OS)" | **/pom.xml'
+      restoreKeys: |
+        maven | "$(Agent.OS)"
+      path: $(MAVEN_CACHE_FOLDER)
+
   # 1. Bauen, testen und Docker-Image erstellen
   - script: |
       export JAVA_HOME=$JAVA_HOME_21_X64
-      mvn -B spring-boot:build-image -Dspring-boot.build-image.imageName=$(imageName):$(Build.BuildId)
+      mvn -B -Dmaven.repo.local=$(MAVEN_CACHE_FOLDER) spring-boot:build-image -Dspring-boot.build-image.imageName=$(imageName):$(Build.BuildId)
     displayName: 'Build, Test und Docker-Image erstellen'
 
   # 2. Testresultate in Azure DevOps anzeigen
@@ -25,14 +35,21 @@ steps:
       testResultsFormat: 'JUnit'
       testResultsFiles: '**/surefire-reports/TEST-*.xml'
 
-  # 3. Bei Docker Hub anmelden
+  # 3. Code Coverage von JaCoCo anzeigen (Bonus)
+  - task: PublishCodeCoverageResults@2
+    displayName: 'Code Coverage publizieren'
+    condition: succeededOrFailed()
+    inputs:
+      summaryFileLocation: '**/target/site/jacoco/jacoco.xml'
+
+  # 4. Bei Docker Hub anmelden
   - task: Docker@2
     displayName: 'Login Docker Hub'
     inputs:
       command: login
       containerRegistry: dockerhub
 
-  # 4. Image auf Docker Hub veröffentlichen
+  # 5. Image auf Docker Hub veröffentlichen
   - script: |
       docker tag $(imageName):$(Build.BuildId) $(imageName):latest
       docker push $(imageName):$(Build.BuildId)
