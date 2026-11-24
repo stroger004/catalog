@@ -30,7 +30,7 @@ class BookRestControllerTest {
         when(repository.search("tolkien")).thenReturn(List.of(
                 new Book("1", "Der Hobbit", "Bilbo und die Zwerge.", "J.R.R. Tolkien")));
 
-        mockMvc.perform(get("/books").param("keywords", "tolkien"))
+        mockMvc.perform(get("/api/books").param("keywords", "tolkien"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -46,7 +46,7 @@ class BookRestControllerTest {
     void returnsEmptyJsonArrayWhenNothingFound() throws Exception {
         when(repository.search("xyz")).thenReturn(List.of());
 
-        mockMvc.perform(get("/books").param("keywords", "xyz"))
+        mockMvc.perform(get("/api/books").param("keywords", "xyz"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
@@ -55,7 +55,7 @@ class BookRestControllerTest {
     void usesEmptyQueryWhenParamMissing() throws Exception {
         when(repository.search("")).thenReturn(List.of());
 
-        mockMvc.perform(get("/books")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/books")).andExpect(status().isOk());
 
         verify(repository).search("");
     }

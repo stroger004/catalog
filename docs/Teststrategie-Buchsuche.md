@@ -9,7 +9,7 @@ Wir wollen sicherstellen, dass die Buchsuche die Anforderungen erfüllt:
 1. Gesucht wird in **Titel**, **Beschreibung** und **Autor**.
 2. **Alle** Schlüsselwörter müssen vorkommen – jedes darf aber in einem anderen Feld stehen.
 3. Die Suche ist **case-insensitive**.
-4. Die REST-Schnittstelle (`GET /books?keywords=...`) liefert die Treffer als **JSON**.
+4. Die REST-Schnittstelle (`GET /api/books?keywords=...`) liefert die Treffer als **JSON**.
 
 ## Testpyramide
 
@@ -19,7 +19,9 @@ Wir testen auf drei Ebenen. Unten viele schnelle Tests, oben wenige, die das Gan
 |---|---|---|---|
 | **Repository-Tests** (viele) | Die Suchlogik gegen eine echte H2-Datenbank mit eigenen Testdaten | JUnit 5, `@DataJpaTest`, AssertJ | `BookRepositoryTest` |
 | **Controller-Tests** (einige) | HTTP-Schnittstelle: URL, Parameter, Statuscode, JSON-Format. Das Repository wird gemockt. | `@WebMvcTest`, MockMvc, Mockito | `BookRestControllerTest` |
-| **Integrationstest** (wenige) | Ganzer Ablauf: HTTP-Anfrage → Controller → Repository → H2 mit `data.sql` | `@SpringBootTest`, MockMvc | `CatalogApplicationIntegrationTest` |
+| **Integrationstest** (wenige) | Ganzer Ablauf: HTTP-Anfrage → Controller → Repository → H2 mit `data.sql` | `@SpringBootTest(webEnvironment = RANDOM_PORT)`, TestRestTemplate (echtes HTTP auf zufälligem Port) | `CatalogApplicationIntegrationTest` |
+| **E2E-Test** (Order-Service) | Ganzer Ablauf im Browser: Suche auf `localhost:8081`, Bücher prüfen, Buch in den Warenkorb legen, Warenkorb prüfen | Playwright | `CatalogPageE2EIT` (Repo order) |
+| **Lasttest** | 100 gleichzeitige Anfragen auf `/api/books?keywords=`, alle müssen erfolgreich sein | Gatling | `BookSearchSimulation` |
 | **Manueller Test** | Kurzer Rauchtest im Browser bzw. mit Postman | Browser, Postman, H2-Konsole | – |
 
 ## Testfälle (Äquivalenzklassen und Grenzfälle)
@@ -50,14 +52,16 @@ Wir testen auf drei Ebenen. Unten viele schnelle Tests, oben wenige, die das Gan
 
 - Lokal: `mvn test` (oder in IntelliJ Rechtsklick auf `src/test/java` → *Run All Tests*).
 - Vor jedem Pull Request müssen alle Tests grün sein.
+- Lasttest: Catalog starten, dann `mvn gatling:test` (Maven-Fenster → Plugins → gatling → gatling:test). Bericht unter `target/gatling/…/index.html`.
+- E2E-Test (Repo order): Catalog (8080) und Order (8081) starten, dann `CatalogPageE2EIT` in IntelliJ ausführen. Der Name endet auf `IT`, damit er bei `mvn test` nicht automatisch läuft.
 - Später: Tests automatisch in einer Azure Pipeline bei jedem Pull Request laufen lassen.
 
 ## Manueller Rauchtest
 
 1. Anwendung starten (`mvn spring-boot:run`).
 2. Im Browser aufrufen:
-   - `http://localhost:8080/books` → alle 10 Bücher
-   - `http://localhost:8080/books?keywords=tolkien%20ring` → 1 Buch
+   - `http://localhost:8080/api/books` → alle 10 Bücher
+   - `http://localhost:8080/api/books?keywords=tolkien%20ring` → 1 Buch
 3. Optional: Daten in der H2-Konsole prüfen unter `http://localhost:8080/h2-console` (JDBC-URL `jdbc:h2:mem:catalog`, User `sa`).
 
 ## Definition of Done (für Story #50)
@@ -70,5 +74,5 @@ Wir testen auf drei Ebenen. Unten viele schnelle Tests, oben wenige, die das Gan
 
 - Zeichen wie `%` oder `_` im Suchbegriff werden als SQL-Platzhalter interpretiert.
 - Keine Sortierung nach Relevanz und keine Paginierung – kommt mit Story #57 „Suchergebnisse anzeigen“.
-- Keine Lasttests, da die Datenmenge im Projekt klein ist.
 ![img.png](img.png)
+- Lasttest und E2E-Test brauchen laufende Anwendungen und laufen deshalb nicht automatisch bei `mvn test`.

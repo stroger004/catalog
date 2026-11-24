@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/books")
 public class BookRestController {
 
     private final BookRepository bookRepository;
@@ -18,7 +18,7 @@ public class BookRestController {
     }
 
     /**
-     * Beispiel: GET /books?keywords=tolkien ring
+     * Beispiel: GET /api/books?keywords=tolkien ring
      */
     @GetMapping
     public List<Book> searchBooks(@RequestParam(name = "keywords", required = false, defaultValue = "") String keywords) {
