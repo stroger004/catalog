@@ -19,7 +19,7 @@ Wir testen auf drei Ebenen. Unten viele schnelle Tests, oben wenige, die das Gan
 |---|---|---|---|
 | **Repository-Tests** (viele) | Die Suchlogik gegen eine echte H2-Datenbank mit eigenen Testdaten | JUnit 5, `@DataJpaTest`, AssertJ | `BookRepositoryTest` |
 | **Controller-Tests** (einige) | HTTP-Schnittstelle: URL, Parameter, Statuscode, JSON-Format. Das Repository wird gemockt. | `@WebMvcTest`, MockMvc, Mockito | `BookRestControllerTest` |
-| **Integrationstest** (wenige) | Ganzer Ablauf: HTTP-Anfrage → Controller → Repository → H2 mit `data.sql` | `@SpringBootTest`, MockMvc | `CatalogApplicationIntegrationTest` |
+| **Integrationstest** (wenige) | Ganzer Ablauf: HTTP-Anfrage → Controller → Repository → H2 mit `data.sql` | `@SpringBootTest(webEnvironment = RANDOM_PORT)`, TestRestTemplate (echtes HTTP auf zufälligem Port) | `CatalogApplicationIntegrationTest` |
 | **Manueller Test** | Kurzer Rauchtest im Browser bzw. mit Postman | Browser, Postman, H2-Konsole | – |
 
 ## Testfälle (Äquivalenzklassen und Grenzfälle)
