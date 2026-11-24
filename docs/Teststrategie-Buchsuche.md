@@ -9,7 +9,7 @@ Wir wollen sicherstellen, dass die Buchsuche die Anforderungen erfüllt:
 1. Gesucht wird in **Titel**, **Beschreibung** und **Autor**.
 2. **Alle** Schlüsselwörter müssen vorkommen – jedes darf aber in einem anderen Feld stehen.
 3. Die Suche ist **case-insensitive**.
-4. Die REST-Schnittstelle (`GET /books?keywords=...`) liefert die Treffer als **JSON**.
+4. Die REST-Schnittstelle (`GET /api/books?keywords=...`) liefert die Treffer als **JSON**.
 
 ## Testpyramide
 
@@ -56,8 +56,8 @@ Wir testen auf drei Ebenen. Unten viele schnelle Tests, oben wenige, die das Gan
 
 1. Anwendung starten (`mvn spring-boot:run`).
 2. Im Browser aufrufen:
-   - `http://localhost:8080/books` → alle 10 Bücher
-   - `http://localhost:8080/books?keywords=tolkien%20ring` → 1 Buch
+   - `http://localhost:8080/api/books` → alle 10 Bücher
+   - `http://localhost:8080/api/books?keywords=tolkien%20ring` → 1 Buch
 3. Optional: Daten in der H2-Konsole prüfen unter `http://localhost:8080/h2-console` (JDBC-URL `jdbc:h2:mem:catalog`, User `sa`).
 
 ## Definition of Done (für Story #50)
