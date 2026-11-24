@@ -1,0 +1,40 @@
+# Pipeline für den Catalog-Service
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  imageName: sonjatroger/catalog
+
+steps:
+  # 1. Bauen, testen und Docker-Image erstellen
+  - script: |
+      export JAVA_HOME=$JAVA_HOME_21_X64
+      mvn -B spring-boot:build-image -Dspring-boot.build-image.imageName=$(imageName):$(Build.BuildId)
+    displayName: 'Build, Test und Docker-Image erstellen'
+
+  # 2. Testresultate in Azure DevOps anzeigen
+  - task: PublishTestResults@2
+    displayName: 'Testresultate publizieren'
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+
+  # 3. Bei Docker Hub anmelden
+  - task: Docker@2
+    displayName: 'Login Docker Hub'
+    inputs:
+      command: login
+      containerRegistry: dockerhub
+
+  # 4. Image auf Docker Hub veröffentlichen
+  - script: |
+      docker tag $(imageName):$(Build.BuildId) $(imageName):latest
+      docker push $(imageName):$(Build.BuildId)
+      docker push $(imageName):latest
+    displayName: 'Image auf Docker Hub pushen'
