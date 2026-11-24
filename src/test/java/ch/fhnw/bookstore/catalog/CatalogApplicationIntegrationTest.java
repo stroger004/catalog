@@ -2,37 +2,51 @@ package ch.fhnw.bookstore.catalog;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * End-to-End-Test: echte H2-Datenbank mit den Daten aus data.sql.
+ * Integrationstest: startet die ganze Anwendung auf einem zufälligen Port
+ * und ruft die REST-Schnittstelle über echtes HTTP auf.
+ * Verwendet die H2-Datenbank mit den Daten aus data.sql.
  */
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class CatalogApplicationIntegrationTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private TestRestTemplate restTemplate;
 
     @Test
-    void searchesSeedDataEndToEnd() throws Exception {
-        mockMvc.perform(get("/api/books").param("keywords", "DÜRRENMATT physiker"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].title").value("Die Physiker"));
+    void searchesSeedDataOverHttp() {
+        ResponseEntity<Book[]> response = restTemplate.getForEntity(
+                "/api/books?keywords={keywords}", Book[].class, "DÜRRENMATT physiker");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        assertThat(response.getBody()).hasSize(1);
+        assertThat(response.getBody()[0].getTitle()).isEqualTo("Die Physiker");
     }
 
     @Test
-    void returnsAllSeedBooksWithoutKeywords() throws Exception {
-        mockMvc.perform(get("/api/books"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(10)));
+    void returnsAllSeedBooksWithoutKeywords() {
+        ResponseEntity<Book[]> response = restTemplate.getForEntity("/api/books", Book[].class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).hasSize(10);
+    }
+
+    @Test
+    void returnsEmptyArrayWhenNothingFound() {
+        ResponseEntity<Book[]> response = restTemplate.getForEntity(
+                "/api/books?keywords={keywords}", Book[].class, "Kochbuch");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEmpty();
     }
 }
