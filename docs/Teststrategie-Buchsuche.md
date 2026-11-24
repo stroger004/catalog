@@ -74,4 +74,5 @@ Wir testen auf drei Ebenen. Unten viele schnelle Tests, oben wenige, die das Gan
 
 - Zeichen wie `%` oder `_` im Suchbegriff werden als SQL-Platzhalter interpretiert.
 - Keine Sortierung nach Relevanz und keine Paginierung – kommt mit Story #57 „Suchergebnisse anzeigen“.
+![img.png](img.png)
 - Lasttest und E2E-Test brauchen laufende Anwendungen und laufen deshalb nicht automatisch bei `mvn test`.
