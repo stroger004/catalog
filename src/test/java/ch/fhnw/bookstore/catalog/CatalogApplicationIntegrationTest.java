@@ -23,7 +23,7 @@ class CatalogApplicationIntegrationTest {
 
     @Test
     void searchesSeedDataEndToEnd() throws Exception {
-        mockMvc.perform(get("/books").param("keywords", "DÜRRENMATT physiker"))
+        mockMvc.perform(get("/api/books").param("keywords", "DÜRRENMATT physiker"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].title").value("Die Physiker"));
@@ -31,7 +31,7 @@ class CatalogApplicationIntegrationTest {
 
     @Test
     void returnsAllSeedBooksWithoutKeywords() throws Exception {
-        mockMvc.perform(get("/books"))
+        mockMvc.perform(get("/api/books"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(10)));
     }

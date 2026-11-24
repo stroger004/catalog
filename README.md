@@ -8,8 +8,8 @@ Spring-Boot-Service für den **Catalog** Bounded Context des Online-Bookstores (
 mvn spring-boot:run
 ```
 
-- Suche: `GET http://localhost:8080/books?keywords=tolkien ring`
-- Alle Bücher: `GET http://localhost:8080/books`
+- Suche: `GET http://localhost:8080/api/books?keywords=tolkien ring`
+- Alle Bücher: `GET http://localhost:8080/api/books`
 - H2-Konsole: `http://localhost:8080/h2-console` (JDBC-URL `jdbc:h2:mem:catalog`, User `sa`, kein Passwort)
 
 ## Tests
@@ -22,9 +22,9 @@ Die Teststrategie steht in [docs/Teststrategie-Buchsuche.md](docs/Teststrategie-
 
 ## Aufbau
 
-| Klasse | Aufgabe |
-|---|---|
-| `Book` | JPA-Entity mit ISBN, Titel, Beschreibung, Autor |
+| Klasse | Aufgabe                                                                                                                  |
+|---|--------------------------------------------------------------------------------------------------------------------------|
+| `Book` | JPA-Entity mit ISBN, Titel, Beschreibung, Autor                                                                          |
 | `BookRepository` | Suchmethode `search(String)` – alle Schlüsselwörter müssen in Titel, Beschreibung oder Autor vorkommen, case-insensitive |
-| `BookRestController` | `GET /books?keywords=...` liefert die Treffer als JSON |
-| `data.sql` | 10 Beispielbücher |
+| `BookRestController` | `GET /api/books?keywords=...` liefert die Treffer als JSON                                                               |
+| `data.sql` | 10 Beispielbücher                                                                                                        |
